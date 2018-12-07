@@ -1,0 +1,106 @@
+Git 和其它版本控制系统（包括 Subversion 和近似工具）的主要差别在于 Git 对待数据的方法。
+ 概念上来区分，其它大部分系统以文件变更列表的方式存储信息。Git 更像是把数据看作是对小型文件系统的一组快照,Git 对待数据更像是一个 快照流。存储每个文件与初始版本的差异.
+近乎所有操作都是本地执行
+集中式工作流
+ 例如 John 和 Jessica 同时开始工作。 John 完成了他的修改并推送到服务器。 接着 Jessica 尝试提交她自己的修改，却遭到服务器拒绝。 她被告知她的修改正通过非快进式（non-fast-forward）的方式推送，只有将数据抓取下来并且合并后方能推送。
+
+集成管理者工作流
+
+项目维护者推送到主仓库。
+
+贡献者克隆此仓库，做出修改。
+
+贡献者将数据推送到自己的公开仓库。
+
+贡献者给维护者发送邮件，请求拉取自己的更新。
+
+维护者在自己本地的仓库中，将贡献者的仓库加为远程仓库并合并修改。
+
+维护者将合并后的修改推送到主仓库。
+司令官与副官工作流
+这其实是多仓库工作流程的变种。 一般拥有数百位协作开发者的超大型项目才会用到这样的工作方式，例如著名的 Linux 内核项目。
+普通开发者在自己的特性分支上工作，并根据 master 分支进行变基。 这里是司令官的`master`分支。
+
+副官将普通开发者的特性分支合并到自己的 master 分支中。
+
+司令官将所有副官的 master 分支并入自己的 master 分支中。
+
+司令官将集成后的 master 分支推送到参考仓库中，以便所有其他开发者以此为基础进行变基
+
+git使用教程
+1.安装：从https://gitforwindows.org/下一个git安装包，安装git程序。
+ 
+2.git环境变量配置
+ 在Path变量中增加：C:\Program Files\Git\cmd
+ 验证git是否安装成功：cmd下 输入：git
+
+3.本地环境配置
+ a.设置/修改用户名 和 邮箱(代码提交者)
+ git config --global user.name 这里是你的用户名
+ git config --global user.email example@email.com
+  git config user.name 查看用户名
+  git config user.email 查看邮箱
+
+ b.创建或克隆一个本地目录作为你的代码实验仓库
+ 创建： 用git init在某个目录中创建新的Git代码仓库
+ 克隆代码：用git clone https://github.com/tomsdo/hello-word.git地址
+ c.设置本地用户别名 起一个名叫origin的别称代替后面的这一长串网址位置，这样的话，在后面的push就可以用这个别称代替
+
+ 4.更改撤销
+ git reset id  对commit后的有效
+ git reset -- . # 从暂存区恢复到工作文件
+ 
+ 
+5.常用命令
+git init  命令创建一个空的Git仓库或重新初始化一个现有仓库。
+git status //命令用于显示工作目录和暂存区的状态
+git add . //将文件内容添加到索引(将修改添加到暂存区)
+git commit -m "has changed by master"  //提交入管理器，或者说暂存区
+git branch 可查看本地仓库分支，发现会出现一个master的分支
+git push -u OuyangM master //以主干master提交代码
+git remote add origin git@github.com:tangsdu/yourRepo.git  # origin 为远程仓库别名  后面http 为远程仓库地址
+git remote -v  使用 git remote -v 命令查看是否生效
+git push -u origin master:jenkinsaps //$ git push <远程主机名> <本地分支名>:<远程分支名>
+git clone url地址 命令将存储库克隆到新目录中。
+git log 查看项目历史
+git pull 将项目 从 github 上 同步
+git checkout 将远程仓库的最新提交检出到本地的工作目录。
+
+注释：git clone 实际上是一个封装了其他几个命令的命令。 它创建了一个新目录，切换到新的目录，然后 git init 来初始化一个空的 Git 仓库， 然后为你指定的 URL 添加一个（默认名称为 origin 的）远程仓库（git remote add），再针对远程仓库执行 git fetch，最后通过 git checkout 将远程仓库的最新提交检出到本地的工作目录。
+
+版本恢复
+1、找到之前提交的git commit的id 
+git log 
+找到想要撤销的id 
+2、git reset –hard id 
+完成撤销,同时将代码恢复到前一commit_id 对应的版本 
+3、git reset id 
+完成Commit命令的撤销，但是不对代码修改进行撤销，可以直接通过git commit 重新提交对本地代码的修改
+
+SSHKEy
+mac和Linux都是自带sshkey的，如果是windows可能需要新建sshkey
+GitHub选择的默认通信方式是SSH,所以要先在Git里面生成SHH Key,打开Git Bash在其中输入如下命令:
+ssh-keygen -t rsa -C "tomsdo@126.com"  //邮箱为github注册的邮箱
+之后会让你选择是否对存放SSH Key的文件夹进行加密,一般都不需要的。一路回车,就OK了。
+$ ssh -T git@github.com  验证是否成功 
+
+进入要上传的仓库，右键git bash，添加远程地址：
+$ git remote add origin git@github.com:yourName/yourRepo.git
+后面的yourName和yourRepo表示你再github的用户名和刚才新建的仓库，加完之后进入.git，打开config，这里会多出一个remote "origin"内容，这就是刚才添加的远程地址，也可以直接修改config来配置远程地址。
+创建新文件夹，打开，然后执行 git init 以创建新的 git 仓库。
+
+在命令行上创建一个新的存储库
+echo“#yourRepo”>> README.md 
+git init 
+git add README.md 
+git commit -m“first commit” 
+git remote add origin git@github.com：tangsdu / yourRepo.git
+git push -u origin master
+
+从命令行推送现有存储库
+关联本地仓库
+git remote add origin git@github.com:tangsdu/yourRepo.git
+上传代码
+ git push -u origin master
+
+remote add origin git@github.com:dewey/yourRepo.git
