@@ -113,9 +113,9 @@ public class SignUtil {
         }
         String result = builder.toString();
         result += "key="+getKey();
-        LOG.info(""+result+"");
+        LOG.info("params sign before ("+result+")");
         result = encodeByMd5(result).toUpperCase();
-        LOG.info(""+result+"");
+        LOG.info("params sign result ("+result+")");
         return result;
     }
 
@@ -142,9 +142,9 @@ public class SignUtil {
         }
         String result = builder.toString();
         result += "key="+getKey();
-        LOG.info("签名字符串:"+result+"");
+        LOG.info("params sign before ("+result+")");
         result = encodeByMd5(result).toUpperCase();
-        LOG.info("MD5签名字符串："+result+"");
+        LOG.info("params sign result ("+result+")");
         return result;
     }
 
@@ -254,7 +254,6 @@ public class SignUtil {
         String key = "96212f8bea9b45b199e9e224cf600ba3";
         SignUtil signUtil = new SignUtil(key);
         signUtil.buildSign(params);
-        
         String lastSign = "CD9FB5A4F3068C16F6D5915E485E754A";
         LOG.info("   params sign result ("+lastSign+")");
         String jsonString = FastJsonUtil.toJson(params);
