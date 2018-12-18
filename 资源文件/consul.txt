@@ -1,0 +1,51 @@
+服务注册与发现 springcloud+consul  
+需要引入spring-boot-starter-actuator包进行健康检查，spring-cloud-starter-consul-discovery springcloud对consul的支持
+一、集群规划
+consul借助agent来运行，类似elk的logstash agent 或 zabbix监控系统的agent ，每个需要被发现的服务上，通过consul agent client 来收集服务本身的信息，然后向consul agent server汇报, consul server 可以集群部署。
+规划一下：
+序号　
+ 节点ip
+节点名称 
+ 角色
+1
+ 10.0.xx.55
+ server1
+ server
+2
+ 10.0.xx.203
+ server2
+ server
+3
+ 10.0.xx.204
+ server3
+ server
+4
+ 10.0.xx.205
+ client1
+ client & web ui
+组建3个server节点的consul server cluster，另外有1个client，模拟客户端以及充当consul的web admin ui(管理界面)。
+服务端基本的命令为：
+consul agent -server -bind=10.0.xx.55 -client=0.0.0.0 -bootstrap-expect=3 -data-dir=/data/application/consul_data/ -node=server1、
+启动client端
+consul agent -client=0.0.0.0 -data-dir=/data/application/consul_data/ -node=client1  -ui  > /dev/null 2>&1 &
+--
+-server 表示是以服务端身份启动
+-bind 表示绑定到哪个ip（有些服务器会绑定多块网卡，可以通过bind参数强制指定绑定的ip）
+-client 指定客户端访问的ip(consul有丰富的api接口，这里的客户端指浏览器或调用方)，0.0.0.0表示不限客户端ip
+-bootstrap-expect=3 表示server集群最低节点数为3，低于这个值将工作不正常(注：类似zookeeper一样，通常集群数为奇数，方便选举，consul采用的是raft算法)
+-data-dir 表示指定数据的存放目录（该目录必须存在）
+-node 表示节点在web ui中显示的名称
+启动成功后，终端窗口不要关闭，可以在浏览器里，访问下，类似 http://10.0.xx.55:8500/，正常的话，应该会看到一行文字：Consul Agent。
+为了防止终端关闭后，consul退出，可以在刚才命令上，加点东西，类似：
+nohup xxx  > /dev/null 2>&1 & 
+--
+创建的节点是独立的，consul members 查看节点集群。需要将所有节点加入到集群中consul join（加入到已有的集群中） 10.0.xx.55（其它3个节点，都加入10.0.xx.55）
+
+如果本机开发，有一个方便的dev模式（后面再讲）
+访问consul：http://localhost:8500/ui/dc1/services?status=passing
+健康检查：http://localhost:8501/actuator/health
+列出所有服务：http://localhost:8500/v1/agent/services
+服务注销。同样也是通过api完成
+curl -X PUT http://10.0.21.55:8500/v1/agent/service/deregister/my-service-id　
+dev开发者模式：consul agent -dev
+不管是SERVER还是CLIENT，都是consul的一个节点，所有的服务都可以注册到这些节点上，正是通过这些节点实现服务注册信息的共享
